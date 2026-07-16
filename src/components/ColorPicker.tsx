@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { Fragment, useState, useEffect, useCallback } from "react";
 import {
   getColor,
   getColorCode,
@@ -57,27 +57,27 @@ export function ColorPicker() {
     [params, push]
   );
 
-  const { chromatinesValues, grid } = getColorGrid(hue);
+  const { blacknessValues, chromatinesValues, grid } = getColorGrid(hue);
 
   return (
     <main
-      className={`flex min-h-screen flex-col items-center p-24 gap-5 ${whiteBg ? "bg-white" : ""}`}
+      className={`flex min-h-screen flex-col items-center px-6 pt-4 pb-6 gap-3 ${whiteBg ? "bg-white" : ""}`}
     >
-      <button
-        className="text-sm rounded bg-slate-400 p-1 self-end"
-        onClick={() => updateColor({ whiteBg: !whiteBg })}
-      >
-        {whiteBg ? "default background" : "white background"}
-      </button>
-      <h1 className="text-3xl">
-        {getColorCode({ hue, chromatines, blackness })}
-      </h1>
+      <div className="w-full flex items-center justify-between font-mono text-sm">
+        <h1 className="text-xl">{getColorCode({ hue, chromatines, blackness })}</h1>
+        <button
+          className="rounded bg-slate-400 p-1"
+          onClick={() => updateColor({ whiteBg: !whiteBg })}
+        >
+          {whiteBg ? "default background" : "white background"}
+        </button>
+      </div>
 
-      <div className="flex flex-col gap-4 items-center font-mono">
-        <div className="flex flex-row gap-4 items-center">
+      <div className="flex flex-col gap-3 items-center font-mono">
+        <div className="flex flex-row gap-3 items-center text-sm">
           <span>Hue: {hue}</span>
           <button
-            className="text-sm text-center rounded bg-slate-400 p-1"
+            className="text-xs rounded bg-slate-400 p-1"
             onClick={() => updateColor({ hue: "N" })}
           >
             reset
@@ -97,32 +97,66 @@ export function ColorPicker() {
           })}
         </div>
 
-        <div
-          className="grid gap-1"
-          style={{
-            gridTemplateColumns: `repeat(${chromatinesValues.length}, 2.5rem)`,
-          }}
-        >
-          {grid.map((row, ri) =>
-            row.map((cell, ci) => (
-              <ColorButton
-                key={`${ri}-${ci}`}
-                color={cell}
-                compact
-                onClick={() => {
-                  if (!cell) return;
-                  updateColor({
-                    blackness: cell.blackness,
-                    chromatines: cell.chromatines,
-                  });
-                }}
-                isSelected={
-                  cell?.blackness === blackness &&
-                  cell?.chromatines === chromatines
-                }
-              />
-            ))
-          )}
+        {/* Color grid with axis labels */}
+        <div className="flex gap-1 items-start">
+          {/* Rotated Blackness legend */}
+          <div
+            className="text-xs self-center select-none"
+            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+          >
+            Blackness ↑
+          </div>
+
+          <div className="flex flex-col gap-1">
+            {/* Chromaticness legend */}
+            <div className="text-xs text-center select-none pl-8">
+              Chromaticness →
+            </div>
+
+            {/* Grid: corner + col headers + row labels + cells */}
+            <div
+              className="grid gap-1"
+              style={{
+                gridTemplateColumns: `2rem repeat(${chromatinesValues.length}, 2.5rem)`,
+              }}
+            >
+              {/* Corner */}
+              <div />
+              {/* Column headers */}
+              {chromatinesValues.map((c) => (
+                <div key={c} className="text-xs text-center leading-none select-none">
+                  {c}
+                </div>
+              ))}
+
+              {/* Rows */}
+              {grid.map((row, ri) => (
+                <Fragment key={ri}>
+                  <div className="text-xs flex items-center justify-end pr-1 select-none">
+                    {blacknessValues[ri]}
+                  </div>
+                  {row.map((cell, ci) => (
+                    <ColorButton
+                      key={ci}
+                      color={cell}
+                      compact
+                      onClick={() => {
+                        if (!cell) return;
+                        updateColor({
+                          blackness: cell.blackness,
+                          chromatines: cell.chromatines,
+                        });
+                      }}
+                      isSelected={
+                        cell?.blackness === blackness &&
+                        cell?.chromatines === chromatines
+                      }
+                    />
+                  ))}
+                </Fragment>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </main>
