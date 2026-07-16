@@ -33,12 +33,26 @@ export function ColorPicker() {
   const setChromatines = (c: string) => updateColor({ chromatines: c });
   const setBlackness = (b: string) => updateColor({ blackness: b });
 
+  const whiteBg = searchParams.get("whiteBg") === "1";
+  const toggleWhiteBg = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (whiteBg) params.delete("whiteBg");
+    else params.set("whiteBg", "1");
+    router.push(`?${params.toString()}`);
+  };
+
   const color = getColor({ hue, chromatines, blackness });
 
   const colors = getSurroundingColors({ hue, chromatines, blackness });
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24 gap-5">
+    <main className={`flex min-h-screen flex-col items-center p-24 gap-5 ${whiteBg ? "bg-white" : ""}`}>
+      <button
+        className="text-sm rounded bg-slate-400 p-1 self-end"
+        onClick={toggleWhiteBg}
+      >
+        {whiteBg ? "default background" : "white background"}
+      </button>
       <h1 className="text-3xl">
         {getColorCode({
           hue,
