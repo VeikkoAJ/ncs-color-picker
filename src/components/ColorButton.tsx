@@ -5,11 +5,28 @@ export const ColorButton = ({
   color,
   onClick,
   isSelected,
+  compact,
 }: {
   color?: NcsColor;
   onClick: () => void;
   isSelected?: boolean;
+  compact?: boolean;
 }) => {
+  if (compact) {
+    if (!color) return <div className="w-10 h-10 rounded" />;
+    return (
+      <button
+        className="w-10 h-10 rounded hover:opacity-80"
+        onClick={onClick}
+        style={{
+          backgroundColor: color.hex,
+          outline: isSelected ? "2px solid white" : "none",
+          outlineOffset: "2px",
+        }}
+      />
+    );
+  }
+
   if (!color) {
     return (
       <div

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   getColor,
   getColorCode,
-  getSurroundingColors,
+  getColorGrid,
   getSurroundingHues,
 } from "../colors";
 import { ColorButton } from "@/components/ColorButton";
@@ -57,8 +57,7 @@ export function ColorPicker() {
     [params, push]
   );
 
-  const color = getColor({ hue, chromatines, blackness });
-  const colors = getSurroundingColors({ hue, chromatines, blackness });
+  const { chromatinesValues, grid } = getColorGrid(hue);
 
   return (
     <main
@@ -84,7 +83,7 @@ export function ColorPicker() {
             reset
           </button>
         </div>
-        <div className={`grid grid-cols-9 gap-4 bg-[${"#50d71e"}]`}>
+        <div className="grid grid-cols-9 gap-2">
           {getSurroundingHues(hue).map((h) => {
             const c = getColor({ hue: h, chromatines: "40", blackness: "40" });
             return (
@@ -97,70 +96,33 @@ export function ColorPicker() {
             );
           })}
         </div>
-        <div className="text-base flex flex-row gap-4 items-center">
-          <span>Blackness: {blackness}</span>
-          <span>Chromatines: {chromatines}</span>
-          <button
-            className="text-sm text-center rounded bg-slate-400 p-1"
-            onClick={() => updateColor({ chromatines: "40", blackness: "40" })}
-          >
-            reset
-          </button>
-        </div>
-        <div className={`grid grid-cols-3 gap-4 bg-[${"#50d71e"}]`}>
-          <div className="col-start-2">
-            <ColorButton
-              color={colors.previousBlackness}
-              onClick={() =>
-                updateColor({ blackness: colors.previousBlackness.blackness })
-              }
-              isSelected={false}
-            />
-          </div>
-          <div className="row-start-2">
-            <ColorButton
-              color={colors.previousChromatines}
-              onClick={() =>
-                updateColor({
-                  chromatines: colors.previousChromatines.chromatines,
-                })
-              }
-              isSelected={false}
-            />
-          </div>
-          <div className="row-start-2 col-start-2">
-            <ColorButton
-              color={color?.[1]}
-              onClick={() => {
-                if (!color) return;
-                updateColor({
-                  chromatines: color[1].chromatines,
-                  blackness: color[1].blackness,
-                });
-              }}
-              isSelected={true}
-            />
-          </div>
-          <div className="row-start-2 col-start-3">
-            <ColorButton
-              color={colors.nextChromatines}
-              onClick={() =>
-                updateColor({
-                  chromatines: colors.nextChromatines.chromatines,
-                })
-              }
-              isSelected={false}
-            />
-          </div>
-          <div className="row-start-3 col-start-2">
-            <ColorButton
-              color={colors.nextBlackness}
-              onClick={() =>
-                updateColor({ blackness: colors.nextBlackness.blackness })
-              }
-              isSelected={false}
-            />
-          </div>
+
+        <div
+          className="grid gap-1"
+          style={{
+            gridTemplateColumns: `repeat(${chromatinesValues.length}, 2.5rem)`,
+          }}
+        >
+          {grid.map((row, ri) =>
+            row.map((cell, ci) => (
+              <ColorButton
+                key={`${ri}-${ci}`}
+                color={cell}
+                compact
+                onClick={() => {
+                  if (!cell) return;
+                  updateColor({
+                    blackness: cell.blackness,
+                    chromatines: cell.chromatines,
+                  });
+                }}
+                isSelected={
+                  cell?.blackness === blackness &&
+                  cell?.chromatines === chromatines
+                }
+              />
+            ))
+          )}
         </div>
       </div>
     </main>

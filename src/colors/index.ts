@@ -69,3 +69,23 @@ export const getColorCode = (color: Omit<NcsColor, "hex">) =>
   `S ${color.blackness}${color.chromatines}-${color.hue}`;
 
 export const getColorFromCode = (color: string) => ncsColors[color];
+
+export const getColorGrid = (hue: string) => {
+  const colors = Object.values(ncsColors).filter((c) => c.hue === hue);
+
+  const blacknessValues = [
+    ...new Set(colors.map((c) => c.blackness)),
+  ].sort((a, b) => Number(a) - Number(b));
+
+  const chromatinesValues = [
+    ...new Set(colors.map((c) => c.chromatines)),
+  ].sort((a, b) => Number(a) - Number(b));
+
+  const grid = blacknessValues.map((b) =>
+    chromatinesValues.map((c) =>
+      colors.find((color) => color.blackness === b && color.chromatines === c)
+    )
+  );
+
+  return { blacknessValues, chromatinesValues, grid };
+};
