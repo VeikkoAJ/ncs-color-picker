@@ -1,4 +1,4 @@
-import { ncsHues, ncsColors, NcsColor } from "./ncsValues";
+import { ncsHues, ncsColors, NcsColor, ncsBlacknessValues, ncsChromatinesValues } from "./ncsValues";
 
 export const getSurroundingHues = (hue: string) => {
   const index = ncsHues.indexOf(hue) ?? 0;
@@ -71,19 +71,15 @@ export const getColorFromCode = (color: string) => ncsColors[color];
 export const getColorGrid = (hue: string) => {
   const colors = Object.values(ncsColors).filter((c) => c.hue === hue);
 
-  const blacknessValues = [
-    ...new Set(colors.map((c) => c.blackness)),
-  ].sort((a, b) => Number(a) - Number(b));
-
-  const chromatinesValues = [
-    ...new Set(colors.map((c) => c.chromatines)),
-  ].sort((a, b) => Number(a) - Number(b));
-
-  const grid = blacknessValues.map((b) =>
-    chromatinesValues.map((c) =>
+  const grid = ncsBlacknessValues.map((b) =>
+    ncsChromatinesValues.map((c) =>
       colors.find((color) => color.blackness === b && color.chromatines === c)
     )
   );
 
-  return { blacknessValues, chromatinesValues, grid };
+  return {
+    blacknessValues: ncsBlacknessValues,
+    chromatinesValues: ncsChromatinesValues,
+    grid,
+  };
 };
