@@ -1,6 +1,4 @@
-"use client";
-import { useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 import {
   getColor,
   getColorCode,
@@ -10,62 +8,78 @@ import {
 import { ncsHuesHex } from "@/colors/ncsValues";
 import { ColorButton } from "@/components/ColorButton";
 
-export function ColorPicker() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const hue = searchParams.get("hue") ?? "N";
-  const chromatines = searchParams.get("chromatines") ?? "40";
-  const blackness = searchParams.get("blackness") ?? "40";
-
-  const updateColor = useCallback(
-    (updates: { hue?: string; chromatines?: string; blackness?: string }) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (updates.hue !== undefined) params.set("hue", updates.hue);
-      if (updates.chromatines !== undefined) params.set("chromatines", updates.chromatines);
-      if (updates.blackness !== undefined) params.set("blackness", updates.blackness);
-      router.push(`?${params.toString()}`);
-    },
-    [router, searchParams]
+function useSearchParams() {
+  const [params, setParams] = useState(
+    () => new URLSearchParams(window.location.search)
   );
 
-  const setHue = (h: string) => updateColor({ hue: h });
-  const setChromatines = (c: string) => updateColor({ chromatines: c });
-  const setBlackness = (b: string) => updateColor({ blackness: b });
+  useEffect(() => {
+    const handler = () =>
+      setParams(new URLSearchParams(window.location.search));
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, []);
 
-  const whiteBg = searchParams.get("whiteBg") === "1";
-  const toggleWhiteBg = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (whiteBg) params.delete("whiteBg");
-    else params.set("whiteBg", "1");
-    router.push(`?${params.toString()}`);
-  };
+  const push = useCallback((search: string) => {
+    window.history.pushState(null, "", search);
+    setParams(new URLSearchParams(window.location.search));
+  }, []);
+
+  return { params, push };
+}
+
+export function ColorPicker() {
+  const { params, push } = useSearchParams();
+
+  const hue = params.get("hue") ?? "N";
+  const chromatines = params.get("chromatines") ?? "40";
+  const blackness = params.get("blackness") ?? "40";
+  const whiteBg = params.get("whiteBg") === "1";
+
+  const updateColor = useCallback(
+    (updates: {
+      hue?: string;
+      chromatines?: string;
+      blackness?: string;
+      whiteBg?: boolean;
+    }) => {
+      const next = new URLSearchParams(params.toString());
+      if (updates.hue !== undefined) next.set("hue", updates.hue);
+      if (updates.chromatines !== undefined)
+        next.set("chromatines", updates.chromatines);
+      if (updates.blackness !== undefined)
+        next.set("blackness", updates.blackness);
+      if (updates.whiteBg !== undefined) {
+        if (updates.whiteBg) next.set("whiteBg", "1");
+        else next.delete("whiteBg");
+      }
+      push(`?${next.toString()}`);
+    },
+    [params, push]
+  );
 
   const color = getColor({ hue, chromatines, blackness });
-
   const colors = getSurroundingColors({ hue, chromatines, blackness });
 
   return (
-    <main className={`flex min-h-screen flex-col items-center p-24 gap-5 ${whiteBg ? "bg-white" : ""}`}>
+    <main
+      className={`flex min-h-screen flex-col items-center p-24 gap-5 ${whiteBg ? "bg-white" : ""}`}
+    >
       <button
         className="text-sm rounded bg-slate-400 p-1 self-end"
-        onClick={toggleWhiteBg}
+        onClick={() => updateColor({ whiteBg: !whiteBg })}
       >
         {whiteBg ? "default background" : "white background"}
       </button>
       <h1 className="text-3xl">
-        {getColorCode({
-          hue,
-          chromatines,
-          blackness,
-        })}
+        {getColorCode({ hue, chromatines, blackness })}
       </h1>
 
-      <div className="flex flex-col gap-4 items-center font-mono ">
+      <div className="flex flex-col gap-4 items-center font-mono">
         <div className="flex flex-row gap-4 items-center">
           <span>Hue: {hue}</span>
           <button
-            className=" text-sm text-center rounded bg-slate-400 p-1"
+            className="text-sm text-center rounded bg-slate-400 p-1"
             onClick={() => updateColor({ hue: "N" })}
           >
             reset
@@ -81,7 +95,7 @@ export function ColorPicker() {
                 blackness: "40",
                 hex: ncsHuesHex[h],
               }}
-              onClick={() => setHue(h)}
+              onClick={() => updateColor({ hue: h })}
               isSelected={hue === h}
             />
           ))}
@@ -90,7 +104,7 @@ export function ColorPicker() {
           <span>Blackness: {blackness}</span>
           <span>Chromatines: {chromatines}</span>
           <button
-            className=" text-sm text-center rounded bg-slate-400 p-1"
+            className="text-sm text-center rounded bg-slate-400 p-1"
             onClick={() => updateColor({ chromatines: "40", blackness: "40" })}
           >
             reset
@@ -100,7 +114,9 @@ export function ColorPicker() {
           <div className="col-start-2">
             <ColorButton
               color={colors.previousBlackness}
-              onClick={() => setBlackness(colors.previousBlackness.blackness)}
+              onClick={() =>
+                updateColor({ blackness: colors.previousBlackness.blackness })
+              }
               isSelected={false}
             />
           </div>
@@ -108,7 +124,9 @@ export function ColorPicker() {
             <ColorButton
               color={colors.previousChromatines}
               onClick={() =>
-                setChromatines(colors.previousChromatines.chromatines)
+                updateColor({
+                  chromatines: colors.previousChromatines.chromatines,
+                })
               }
               isSelected={false}
             />
@@ -118,8 +136,10 @@ export function ColorPicker() {
               color={color?.[1]}
               onClick={() => {
                 if (!color) return;
-                setChromatines(color?.[1].chromatines);
-                setBlackness(color?.[1].blackness);
+                updateColor({
+                  chromatines: color[1].chromatines,
+                  blackness: color[1].blackness,
+                });
               }}
               isSelected={true}
             />
@@ -127,14 +147,20 @@ export function ColorPicker() {
           <div className="row-start-2 col-start-3">
             <ColorButton
               color={colors.nextChromatines}
-              onClick={() => setChromatines(colors.nextChromatines.chromatines)}
+              onClick={() =>
+                updateColor({
+                  chromatines: colors.nextChromatines.chromatines,
+                })
+              }
               isSelected={false}
             />
           </div>
           <div className="row-start-3 col-start-2">
             <ColorButton
               color={colors.nextBlackness}
-              onClick={() => setBlackness(colors.nextBlackness.blackness)}
+              onClick={() =>
+                updateColor({ blackness: colors.nextBlackness.blackness })
+              }
               isSelected={false}
             />
           </div>
