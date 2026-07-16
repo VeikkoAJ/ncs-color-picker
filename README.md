@@ -22,6 +22,6 @@ Open [http://localhost:5173](http://localhost:5173) to view the site.
 
 This was originally done back in 2024 when I was choosing a paint color for my Nissan Patrol offroader and I could not find a good NCS color comparing tool. In 2026 I updated it with the help of Claude Code when deciding a new color for my bicycle.
 
-Ps. Here's a photo of the Patrol. The color I went with was S 2020-G30Y and the paint was Tikkurila Temadur 90.
+Ps. Here's a photo of the Patrol. The color I went with was `S 2020-G30Y` and the paint was Tikkurila Temadur 90.
 
 <img src="patrol_new_color.jpg" width="300" />
