@@ -1,14 +1,27 @@
-# Ncs color picker
+# NCS Color Picker
 
-Simple color picker to compare different ncs colors.
+Simple color picker to compare different NCS colors.
 
-Run locally the development server:
+> Disclaimer: Colors are converted to RGB for the browser and may differ from real NCS colors.
+
+Check the live version [here](https://veikkoaj.github.io/ncs-color-picker/).
+
+
+Or run the development server locally:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the site.
+Open [http://localhost:5173](http://localhost:5173) to view the site.
 
-<img width="1710" alt="Screenshot 2024-06-29 at 10 46 06" src="https://github.com/VeikkoAJ/ncs-color-picker/assets/53999540/5bdb72be-f5fa-40fb-b667-391d241216f7">
+![Preview](screenshot.png)
+
+## Update
+
+This was originally done back in 2024 when I was choosing a paint color for my Nissan Patrol offroader and I could not find a good NCS color comparing tool. In 2026 I updated it with the help of Claude Code when deciding a new color for my bicycle.
+
+Ps. Here's a photo of the Patrol. The color I went with was S 2020-G30Y and the paint was Tikkurila Temadur 90.
+
+<img src="patrol_new_color.jpg" width="300" />
