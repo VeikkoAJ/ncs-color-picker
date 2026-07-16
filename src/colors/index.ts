@@ -1,6 +1,4 @@
-import { ncsHuesHex, ncsHues, ncsColors, NcsColor } from "./ncsValues";
-
-export const getHex = (hue: string) => ncsHuesHex[hue] ?? "#ffffff";
+import { ncsHues, ncsColors, NcsColor } from "./ncsValues";
 
 export const getSurroundingHues = (hue: string) => {
   const index = ncsHues.indexOf(hue) ?? 0;
