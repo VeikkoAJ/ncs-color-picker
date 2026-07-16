@@ -5,7 +5,6 @@ import {
   getSurroundingColors,
   getSurroundingHues,
 } from "../colors";
-import { ncsHuesHex } from "@/colors/ncsValues";
 import { ColorButton } from "@/components/ColorButton";
 
 function useSearchParams() {
@@ -86,19 +85,17 @@ export function ColorPicker() {
           </button>
         </div>
         <div className={`grid grid-cols-9 gap-4 bg-[${"#50d71e"}]`}>
-          {getSurroundingHues(hue).map((h) => (
-            <ColorButton
-              key={h}
-              color={{
-                hue: h,
-                chromatines: "40",
-                blackness: "40",
-                hex: ncsHuesHex[h],
-              }}
-              onClick={() => updateColor({ hue: h })}
-              isSelected={hue === h}
-            />
-          ))}
+          {getSurroundingHues(hue).map((h) => {
+            const c = getColor({ hue: h, chromatines: "40", blackness: "40" });
+            return (
+              <ColorButton
+                key={h}
+                color={c?.[1]}
+                onClick={() => updateColor({ hue: h })}
+                isSelected={hue === h}
+              />
+            );
+          })}
         </div>
         <div className="text-base flex flex-row gap-4 items-center">
           <span>Blackness: {blackness}</span>
